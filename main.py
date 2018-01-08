@@ -111,7 +111,7 @@ def get_image_features(image_name):
         observations = split_mixed([part_state], 4, 'hor')
 
         for observation in observations:
-            dct_observation = scipy.fftpack.dct(observation.flatten())[0:1]
+            dct_observation = scipy.fftpack.dct(observation.flatten())[0:64]
             result.append(dct_observation)
 
     return result
@@ -189,8 +189,8 @@ def start():
     base_dir = './TrainingSet'
     offline_forgeries = 'Offline Forgeries'
     offline_genuine = 'Offline Genuine'
-    train_params = { 'start': 0, 'end': 10}
-    test_params = { 'start': 10, 'end': 20}
+    train_params = { 'from': 0, 'to': 10 }
+    test_params = { 'from': 10, 'to': 20 }
 
     genuine_signatures = os.listdir(base_dir + '/' + offline_genuine)
 
@@ -228,14 +228,8 @@ def start():
                 result.append(np.array(row))
 
             result = np.concatenate(result)
+
             hmm_model = hmm.GMMHMM(4)
-            hmm_model.startprob_ = np.array([1.0, 0.0, 0.0, 0.0])
-            hmm_model.transmat_ = np.array([
-                [0.5, 0.5, 0.0, 0.0],
-                [0.0, 0.5, 0.5, 0.0],
-                [0.0, 0.0, 0.5, 0.5],
-                [0.0, 0.0, 0.0, 1.0],
-            ])
             hmm_model.fit(result, lengths)
             models.append(hmm_model)
 
