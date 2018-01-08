@@ -5,6 +5,7 @@ import numpy as np
 import scipy.cluster
 import scipy.fftpack
 import scipy.ndimage
+import skimage.transform
 from hmmlearn import hmm
 from sklearn.externals import joblib
 
@@ -116,6 +117,7 @@ def get_training_data(train_features):
 
 def get_image_features(image_name):
     signature_img = scipy.ndimage.imread(image_name, flatten=True)
+    signature_img = scipy.misc.imresize(signature_img, 0.5)
     signature_img = scipy.ndimage.filters.gaussian_filter(signature_img, 2)
     signature_img = to_binary(signature_img)
 
