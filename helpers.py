@@ -75,7 +75,7 @@ def split_mixed(images, depth, split_type):
         return split_mixed(result, depth, split_type)
 
 
-def to_binary(image, ):
+def to_binary(image):
     mean = image.mean()
     height = image.shape[0]
     width = image.shape[1]
