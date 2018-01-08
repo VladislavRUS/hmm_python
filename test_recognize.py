@@ -48,6 +48,8 @@ def start(train_params, test_params):
             scores.append(hmm_model.score(get_image_features(signature)))
 
         mean = np.mean(scores)
+        min_score = mean - 1000
+        max_score = mean + 1000
 
         forgeries_signatures = get_signatures_of_class_name(base_dir + '/' + offline_forgeries, key)
         genuine_signatures = get_signatures_of_class_name(base_dir + '/' + offline_genuine, key)
@@ -58,13 +60,13 @@ def start(train_params, test_params):
         for signature in forgeries_signatures:
             score = hmm_model.score(get_image_features(base_dir + '/' + offline_forgeries + '/' + signature))
 
-            if score > mean:
+            if min_score < score < max_score:
                 errors = errors + 1
 
         for signature in genuine_signatures:
             score = hmm_model.score(get_image_features(base_dir + '/' + offline_genuine + '/' + signature))
 
-            if score < mean:
+            if score > max_score or score < min_score:
                 errors = errors + 1
 
     print(1 - errors / length)
