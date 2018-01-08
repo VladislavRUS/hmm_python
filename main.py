@@ -136,7 +136,7 @@ def get_best_model(models, signatures):
 def extract_image_name(file_name):
     return file_name[file_name.rfind('/') + 1::].split('_')[0]
 
-def test():
+def test(test_params):
     base_dir = './TrainingSet'
     offline_forgeries = 'Offline Forgeries'
     offline_genuine = 'Offline Genuine'
@@ -159,7 +159,7 @@ def test():
     test_signatures = []
 
     for key in signatures_dictionary:
-        signatures = signatures_dictionary[key][10:20]
+        signatures = signatures_dictionary[key][test_params['from']:test_params['to']]
 
         for signature in signatures:
             test_signatures.append(signature)
@@ -189,8 +189,10 @@ def start():
     base_dir = './TrainingSet'
     offline_forgeries = 'Offline Forgeries'
     offline_genuine = 'Offline Genuine'
+    train_params = { 'start': 0, 'end': 10}
+    test_params = { 'start': 10, 'end': 20}
 
-    genuine_signatures = os.listdir(base_dir + '/' + offline_genuine)[0:50]
+    genuine_signatures = os.listdir(base_dir + '/' + offline_genuine)
 
     signatures_dictionary = {}
 
@@ -204,7 +206,7 @@ def start():
         signatures_dictionary[key].append(path_to_signature)
 
     for key in signatures_dictionary:
-        signatures = signatures_dictionary[key][0:10]
+        signatures = signatures_dictionary[key][train_params['from']:train_params['to']]
 
         train_features = []
 
@@ -241,6 +243,6 @@ def start():
         joblib.dump(best_model, 'models' + '/' + extract_image_name(signatures[0]) + '.pkl')
 
     print('Start testing...')
-    test()
+    test(test_params)
 
 start()
