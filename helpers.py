@@ -117,8 +117,8 @@ def get_training_data(train_features):
 
 def get_image_features(image_name):
     signature_img = scipy.ndimage.imread(image_name, flatten=True)
-    signature_img = scipy.misc.imresize(signature_img, 0.5)
     signature_img = scipy.ndimage.filters.gaussian_filter(signature_img, 2)
+    signature_img = scipy.misc.imresize(signature_img, 0.5)
     signature_img = to_binary(signature_img)
 
     initial_parts = split_vertically([signature_img], 4)

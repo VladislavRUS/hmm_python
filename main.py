@@ -2,8 +2,8 @@ import make_models
 import test_classify
 import test_recognize
 
-train_params = {'from': 0, 'to': 15}
-test_params = {'from': 15, 'to': 20}
+train_params = {'from': 0, 'to': 12}
+test_params = {'from': 12, 'to': 24}
 recognize_variance = 850
 
 make_models.start(train_params)
