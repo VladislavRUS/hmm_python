@@ -12,7 +12,7 @@ def get_signatures_of_class_name(folder, class_name):
     return result
 
 
-def start(train_params, test_params):
+def start(train_params, test_params, recognize_variance):
     base_dir = './TrainingSet'
     offline_genuine = 'Offline Genuine'
     offline_forgeries = 'Offline Forgeries'
@@ -48,8 +48,8 @@ def start(train_params, test_params):
             scores.append(hmm_model.score(get_image_features(signature)))
 
         mean = np.mean(scores)
-        min_score = mean - 1000
-        max_score = mean + 1000
+        min_score = mean - recognize_variance
+        max_score = mean + recognize_variance
 
         forgeries_signatures = get_signatures_of_class_name(base_dir + '/' + offline_forgeries, key)
         genuine_signatures = get_signatures_of_class_name(base_dir + '/' + offline_genuine, key)
