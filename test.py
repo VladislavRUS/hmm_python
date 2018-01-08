@@ -5,11 +5,9 @@ import numpy as np
 import scipy.cluster
 import scipy.fftpack
 import scipy.ndimage
-from hmmlearn import hmm
 from sklearn.externals import joblib
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 
 def split_vertically(images, images_number):
     result = []
@@ -73,34 +71,12 @@ def split_mixed(images, depth, split_type):
     else:
         return split_mixed(result, depth, split_type)
 
-
-def to_binary(image,):
-
-    mean = image.mean()
-    height = image.shape[0]
-    width = image.shape[1]
-
-    binary = []
-
-    for i in range(0, height):
-
-        row = []
-        for j in range(0, width):
-            if image[i, j] > mean:
-                row.append(255)
-
-            else:
-                row.append(0)
-
-        binary.append(np.array(row))
-
-    return np.array(binary)
-
+def extract_image_name(file_name):
+    return file_name[file_name.rfind('/') + 1::].split('_')[0]
 
 def get_image_features(image_name):
     signature_img = scipy.ndimage.imread(image_name, flatten=True)
-    signature_img = scipy.ndimage.filters.gaussian_filter(signature_img, 2)
-    signature_img = to_binary(signature_img)
+    signature_img = scipy.ndimage.filters.gaussian_filter(signature_img, 0.5)
 
     initial_parts = split_vertically([signature_img], 4)
 
@@ -116,27 +92,7 @@ def get_image_features(image_name):
 
     return result
 
-
-def get_best_model(models, signatures):
-    scores = []
-
-    for i in range(0, len(models)):
-        model = models[i]
-        score = 0
-
-        for signature in signatures:
-            score = score + model.score(get_image_features(signature))
-
-        scores.append(score)
-
-    max_idx = np.argmax(scores)
-    return models[max_idx]
-
-
-def extract_image_name(file_name):
-    return file_name[file_name.rfind('/') + 1::].split('_')[0]
-
-def test():
+def start():
     base_dir = './TrainingSet'
     offline_forgeries = 'Offline Forgeries'
     offline_genuine = 'Offline Genuine'
@@ -159,7 +115,7 @@ def test():
     test_signatures = []
 
     for key in signatures_dictionary:
-        signatures = signatures_dictionary[key][10:20]
+        signatures = signatures_dictionary[key][5:10]
 
         for signature in signatures:
             test_signatures.append(signature)
@@ -184,63 +140,5 @@ def test():
             errors = errors + 1
 
     print(1 - (errors / len(test_signatures)))
-
-def start():
-    base_dir = './TrainingSet'
-    offline_forgeries = 'Offline Forgeries'
-    offline_genuine = 'Offline Genuine'
-
-    genuine_signatures = os.listdir(base_dir + '/' + offline_genuine)[0:50]
-
-    signatures_dictionary = {}
-
-    for signature_file_name in genuine_signatures:
-        key = signature_file_name.split('_')[0]
-
-        if key not in signatures_dictionary:
-            signatures_dictionary[key] = []
-
-        path_to_signature = base_dir + '/' + offline_genuine + '/' + signature_file_name
-        signatures_dictionary[key].append(path_to_signature)
-
-    for key in signatures_dictionary:
-        signatures = signatures_dictionary[key][0:10]
-
-        train_features = []
-
-        models = []
-
-        for signature_file_name in signatures:
-            train_features.append(get_image_features(signature_file_name))
-
-            result = []
-            lengths = []
-
-            for vector in train_features:
-                row = []
-                lengths.append(len(vector))
-
-                for value in vector:
-                    row.append(np.array(value))
-
-                result.append(np.array(row))
-
-            result = np.concatenate(result)
-            hmm_model = hmm.GMMHMM(4)
-            hmm_model.startprob_ = np.array([1.0, 0.0, 0.0, 0.0])
-            hmm_model.transmat_ = np.array([
-                [0.5, 0.5, 0.0, 0.0],
-                [0.0, 0.5, 0.5, 0.0],
-                [0.0, 0.0, 0.5, 0.5],
-                [0.0, 0.0, 0.0, 1.0],
-            ])
-            hmm_model.fit(result, lengths)
-            models.append(hmm_model)
-
-        best_model = get_best_model(models, signatures)
-        joblib.dump(best_model, 'models' + '/' + extract_image_name(signatures[0]) + '.pkl')
-
-    print('Start testing...')
-    test()
 
 start()
