@@ -21,7 +21,6 @@ def start(train_params):
     for key in signatures_dictionary:
         signatures = signatures_dictionary[key][train_params['from']:train_params['to']]
 
-        models = []
         train_features = []
 
         for signature_file_name in signatures:
@@ -30,7 +29,5 @@ def start(train_params):
         hmm_model = hmm.GMMHMM(4)
         data, lengths = get_training_data(train_features)
         hmm_model.fit(data, lengths)
-        models.append(hmm_model)
 
-        best_model = get_best_model(models, signatures)
-        joblib.dump(best_model, 'models' + '/' + extract_image_name(signatures[0]) + '.pkl')
+        joblib.dump(hmm_model, 'models' + '/' + extract_image_name(signatures[0]) + '.pkl')

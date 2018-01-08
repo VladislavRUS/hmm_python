@@ -134,21 +134,5 @@ def get_image_features(image_name):
     return result
 
 
-def get_best_model(models, signatures):
-    scores = []
-
-    for i in range(0, len(models)):
-        model = models[i]
-        score = 0
-
-        for signature in signatures:
-            score = score + model.score(get_image_features(signature))
-
-        scores.append(score)
-
-    max_idx = np.argmax(scores)
-    return models[max_idx]
-
-
 def extract_image_name(file_name):
     return file_name[file_name.rfind('/') + 1::].split('_')[0]
